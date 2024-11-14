@@ -10,7 +10,8 @@ const RecipesList = () => {
   const [openDetails, setOpenDetails] = useState(false);
   const [recipeId, setRecipeId] = useState("");
   const [recipes, setRecipes] = useState([]);
-  const [searchInput, setSearchInput] = useState("abc");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState(null);
 
   const { data, isLoading, error } = useQuery({
@@ -24,8 +25,27 @@ const RecipesList = () => {
     }
   }, [data]);
 
-  const handleSearch = () => {
-    setSearchQuery(searchInput);
+  const handleSearch = async () => {
+    if (!searchInput.trim()) {
+      setRecipes(data);
+      return;
+    }
+
+    try {
+      const results = await HttpKit.searchRecipesByName(searchInput);
+      setRecipes(results);
+    } catch (error) {
+      console.error("Search error:", error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+
+    if (!value.trim()) {
+      handleSearch();
+    }
   };
 
   const handleDetailsOpen = (id) => {
@@ -42,18 +62,20 @@ const RecipesList = () => {
         <h1 className="text-2xl font-bold">Top Recipes</h1>
         {/* Search form */}
         <div>
-          <form action="" className="w-full mt-12">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch();
+            }}
+            className="w-full mt-12"
+          >
             <div className="relative flex p-1 rounded-full bg-white   border border-yellow-200 shadow-md md:p-2">
               <input
                 placeholder="Your favorite food"
-                className="w-full p-4 rounded-full outline-none bg-transparent "
+                className="w-full p-4 rounded-full outline-none bg-transparent"
                 type="text"
-                onChange={(e) =>
-                  setSearchInput((prev) => ({
-                    ...prev,
-                    value: e.target.value,
-                  }))
-                }
+                value={searchInput}
+                onChange={handleInputChange}
               />
               <button
                 onClick={() => handleSearch()}
