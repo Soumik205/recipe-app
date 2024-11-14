@@ -28,3 +28,5 @@ A basic recipe app that uses Next.js & MongoDB to store recipes in cart. Basic u
 ## Issues
 
 - After successfully logging in, user needs to refresh the page to see the logout button on navbar
+
+**Estimated time taken: 8 hours**
